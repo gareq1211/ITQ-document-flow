@@ -1,0 +1,4 @@
+rootProject.name = 'document-flow'
+
+include 'service'
+include 'generator-utility'

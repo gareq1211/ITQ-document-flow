@@ -1,0 +1,41 @@
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+.springBeans
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Application specific
+service/src/main/resources/application-local.yml
+service/src/main/resources/application-dev.yml
+service/src/main/resources/application-prod.yml
+
+# OS files
+.DS_Store
+Thumbs.db

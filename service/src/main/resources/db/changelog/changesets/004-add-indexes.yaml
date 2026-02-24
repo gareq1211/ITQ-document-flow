@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: me
+      changes:
+        - createIndex:
+            tableName: document
+            indexName: idx_document_status
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            tableName: document
+            indexName: idx_document_author
+            columns:
+              - column:
+                  name: author
+        - createIndex:
+            tableName: document
+            indexName: idx_document_created_at
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            tableName: document_history
+            indexName: idx_history_document_id
+            columns:
+              - column:
+                  name: document_id
+        - createIndex:
+            tableName: approval_registry
+            indexName: idx_registry_document_id
+            columns:
+              - column:
+                  name: document_id
