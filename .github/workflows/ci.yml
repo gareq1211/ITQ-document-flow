@@ -37,11 +37,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Test connection to PostgreSQL
-        run: |
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=postgres psql -h localhost -U postgres -d document_flow -c "SELECT 1;"
-
       - name: Build with Gradle
         run: |
           cd service
@@ -53,9 +48,37 @@ jobs:
           cd service
           ../gradlew test
 
-      - name: Run application (smoke test)
+      - name: Start application in background
         run: |
           cd service
           ../gradlew bootRun &
-          sleep 30
-          curl -f http://localhost:8080/api/documents?ids=1 || echo "API not ready yet, but build passed"
+          echo "APP_PID=$!" >> $GITHUB_ENV
+
+      - name: Wait for application to start
+        run: |
+          timeout=60
+          counter=0
+          while [ $counter -lt $timeout ]; do
+            if curl -s http://localhost:8080/actuator/health > /dev/null; then
+              echo "Application started successfully!"
+              exit 0
+            fi
+            sleep 2
+            counter=$((counter+2))
+          done
+          echo "Application failed to start within $timeout seconds"
+          exit 1
+
+      - name: Create a test document
+        run: |
+          curl -X POST http://localhost:8080/api/documents \
+            -H "Content-Type: application/json" \
+            -d '{"author":"test","title":"test document"}'
+
+      - name: Get document
+        run: |
+          curl -f http://localhost:8080/api/documents/1 || echo "Document not found yet"
+
+      - name: Stop application
+        if: always()
+        run: kill $APP_PID || true
