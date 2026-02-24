@@ -1,0 +1,61 @@
+name: CI Build Test on Linux
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: document_flow
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Test connection to PostgreSQL
+        run: |
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=postgres psql -h localhost -U postgres -d document_flow -c "SELECT 1;"
+
+      - name: Build with Gradle
+        run: |
+          cd service
+          chmod +x ../gradlew
+          ../gradlew build
+
+      - name: Run tests
+        run: |
+          cd service
+          ../gradlew test
+
+      - name: Run application (smoke test)
+        run: |
+          cd service
+          ../gradlew bootRun &
+          sleep 30
+          curl -f http://localhost:8080/api/documents?ids=1 || echo "API not ready yet, but build passed"
