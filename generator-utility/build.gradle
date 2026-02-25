@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
 }
 
 java {
@@ -10,6 +11,13 @@ java {
 
 application {
     mainClass = 'com.itqgroup.generator.DocumentGenerator'
+}
+
+checkstyle {
+    toolVersion = '10.12.1'
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    maxErrors = 0
+    maxWarnings = 0
 }
 
 dependencies {
@@ -24,7 +32,6 @@ repositories {
     mavenCentral()
 }
 
-// Создание fat jar со всеми зависимостями
 jar {
     manifest {
         attributes(

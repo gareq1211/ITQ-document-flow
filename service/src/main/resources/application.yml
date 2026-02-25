@@ -1,29 +1,57 @@
 spring:
   datasource:
-    url: jdbc:postgresql://172.18.0.3:5432/document_flow
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/document_flow}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yaml
     enabled: true
 
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 server:
-  port: 8080
+  port: ${PORT:8080}
+  shutdown: graceful
 
 logging:
   level:
     com.itqgroup: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.springframework.jdbc: DEBUG
-    liquibase: DEBUG
+  file:
+    name: logs/document-flow.log
+    max-size: 10MB
+    max-history: 7
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method

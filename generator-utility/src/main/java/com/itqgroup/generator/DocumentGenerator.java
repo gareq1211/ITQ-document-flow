@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class DocumentGenerator {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper()
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
@@ -43,7 +43,6 @@ public class DocumentGenerator {
             // Загружаем конфигурацию
             loadConfig(args[0]);
 
-            // Загружаем список авторов
             List<String> authors = loadAuthors(authorsFile);
 
             log.info("=========================================");
